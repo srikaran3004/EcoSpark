@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Earn Credits • EcoSpark{% endblock %}
+
+{% block head_extra %}
+<style>
+
+  /* PAGE BACKGROUND */
+  .credits-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a4d2e, #2d6a4f, #52b788);
+    padding: 3rem 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* FLOATING ICONS */
+  .float-icon {
+    position: absolute;
+    font-size: 2rem;
+    opacity: 0.25;
+    animation: float 8s infinite ease-in-out;
+  }
+
+  .i1 { top: 15%; left: 8%; }
+  .i2 { top: 25%; right: 10%; animation-delay: 2s; }
+  .i3 { bottom: 20%; left: 22%; animation-delay: 1.2s; }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  /* HEADERS */
+  .hero-title {
+    color: #fff;
+    font-weight: 700;
+    text-align: center;
+    font-size: 2.3rem;
+  }
+  .hero-subtitle {
+    text-align: center;
+    color: #eaffee;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  /* GREEN PREMIUM BOXES (TOP TWO) */
+  .eco-card {
+    background: linear-gradient(135deg, #d4f5e3, #eaf6ef);
+    border-left: 4px solid #52b788;
+    border-radius: 16px;
+    padding: 1.7rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+  }
+
+  .eco-card * {
+    color: #103b28 !important;
+  }
+
+  /* INPUT */
+  .form-control {
+    border-radius: 10px;
+    padding: 0.65rem 1rem;
+    border: 2px solid #bfe9d2;
+  }
+
+  .btn-success {
+    background: linear-gradient(135deg, #2d6a4f, #52b788);
+    border-radius: 10px;
+    padding: 0.65rem 1rem;
+    border: none;
+    font-weight: 600;
+  }
+
+  /* RESULT BOX COMPACT */
+  .result-box {
+    background: linear-gradient(135deg, #d4f5e3, #eaf6ef);
+    border-left: 4px solid #52b788;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+  }
+
+  /* ICON SIZE FIX */
+  .credit-icon-img {
+    max-width: 75px;
+    margin-bottom: 10px;
+  }
+
+  /* BOTTOM SECTION BOXES — MATCH EDUCATION STYLE */
+  .info-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    padding: 1.4rem;
+    text-align: center;
+  }
+
+  .info-card * {
+    color: #123b2a !important;
+  }
+
+  .info-icon {
+    font-size: 2rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .how-title {
+    text-align: center;
+    color: #fff;
+    font-weight: 700;
+    margin-top: 3rem;
+    margin-bottom: 1.4rem;
+  }
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="credits-page">
+
+  <!-- Floating icons -->
+  <div class="float-icon i1">♻️</div>
+  <div class="float-icon i2">📱</div>
+  <div class="float-icon i3">🔋</div>
+
+  <!-- Page Title -->
+  <h1 class="hero-title">Earn Eco-Credits</h1>
+  <p class="hero-subtitle">Estimate recoverable metal from your device and earn points</p>
+
+
+  <div class="container">
+    <div class="row g-4">
+
+      <!-- LEFT CARD -->
+      <div class="col-lg-7">
+        <div class="eco-card">
+
+          <h4 class="fw-bold mb-2">Enter Your Device</h4>
+          <p class="text-muted" style="color:#2c5f44 !important;">
+            Example: “iPhone 8”, “Samsung J7”, “Dell Inspiron 3521”
+          </p>
+
+          <form method="post" class="row gy-2 gx-2 align-items-center">
+            {% csrf_token %}
+            <div class="col-sm-8">
+              <input type="text" name="device_model" class="form-control" placeholder="Search device..." required>
+            </div>
+            <div class="col-sm-4 d-grid d-sm-block">
+              <button type="submit" class="btn btn-success w-100">Calculate & Earn</button>
+            </div>
+          </form>
+
+          {% if result %}
+          <div class="result-box">
+            <h6 class="fw-bold mb-1">Your Results</h6>
+            <p><strong>Device:</strong> {{ result.model_name }}</p>
+            <p><strong>Metal extractable:</strong> {{ result.metal_value }} g</p>
+            <p><strong>Points:</strong> {{ result.points_awarded }}</p>
+
+            {% if not result.saved %}
+            <p class="text-muted mt-1" style="font-size:0.82rem;">Login to save your points.</p>
+            {% endif %}
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+
+      <!-- RIGHT CARD -->
+      <div class="col-lg-5">
+        <div class="eco-card text-center">
+          <h4 class="fw-bold">Your Credit Balance</h4>
+
+          {% if user.is_authenticated %}
+            <img src="https://img.icons8.com/emoji/512/coin-emoji.png" class="credit-icon-img">
+            <div class="display-6">{{ balance|default:0 }} pts</div>
+            <p class="text-muted">Keep recycling to earn more!</p>
+          {% else %}
+            <img src="https://img.icons8.com/color/452/login-rounded-right.png" class="credit-icon-img">
+            <p class="text-muted">Login to track your eco-credits.</p>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- BOTTOM EDUCATION-THEME CARDS -->
+    <h3 class="how-title">How Credits Work</h3>
+
+    <div class="row g-4">
+
+      <div class="col-md-4">
+        <div class="info-card">
+          <div class="info-icon">📱</div>
+          <h6 class="fw-bold">1. Enter Your Device</h6>
+          <p>We match it to known metal recovery data.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="info-card">
+          <div class="info-icon">🧪</div>
+          <h6 class="fw-bold">2. Metal Estimation</h6>
+          <p>We estimate how much metal can be recovered.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="info-card">
+          <div class="info-icon">⭐</div>
+          <h6 class="fw-bold">3. Earn Points</h6>
+          <p>Recycle more to increase your eco-impact.</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

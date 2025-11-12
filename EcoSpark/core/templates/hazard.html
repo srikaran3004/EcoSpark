@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Health & Hazard Visualiser • E‑Waste Finder{% endblock %}
+{% block content %}
+<div class="row g-3" style="margin-top: 2rem;">
+  <div class="col-lg-8 mx-auto">
+    <div class="card shadow-lg" data-aos="fade-up">
+      <div class="card-body p-4">
+        <h3 class="card-title mb-4 text-center">
+          <span class="display-6 me-2">⚠️</span>
+          Health & Hazard Visualiser
+        </h3>
+        <form method="post" class="row gy-3">
+          {% csrf_token %}
+          <div class="col-md-8">
+            <label class="form-label fw-semibold">E-Waste Component</label>
+            <input name="component" class="form-control form-control-lg" placeholder="e.g., battery, display, circuit board, lead, mercury" required>
+          </div>
+          <div class="col-md-4 d-grid">
+            <label class="form-label fw-semibold">&nbsp;</label>
+            <button class="btn btn-success btn-lg" type="submit">
+              <strong>Explain Impact</strong>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {% if explanation %}
+      <div class="card mt-4 shadow-lg border-warning" data-aos="zoom-in" style="border-width: 3px !important;">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-start mb-3">
+            <div class="display-4 me-3">⚠️</div>
+            <div class="flex-grow-1">
+              <h5 class="card-title mb-2">{{ component|title }} — Environmental & Health Impact</h5>
+              <div class="alert alert-warning mb-0" style="background: rgba(255, 193, 7, 0.1); border-left: 4px solid #ffc107;">
+                <p class="mb-0" style="line-height: 1.8; white-space: pre-line;">{{ explanation }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+

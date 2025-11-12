@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% block title %}Reuse Marketplace • E-Waste Finder{% endblock %}
+
+{% block head_extra %}
+<style>
+  .badge.text-bg-success, .card-title.mb-1, .card-title.mb-1 span, .card-title.mb-1 h5 {
+    color: #fff !important;
+  }
+  .badge.text-bg-success {
+    background: #52b788 !important;
+    border: none !important;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(82,183,136,0.08);
+  }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="row g-4" style="margin-top: 2rem;">
+
+  <!-- LEFT PANEL -->
+  <div class="col-lg-7">
+    <div class="card shadow-lg" data-aos="fade-right">
+      <div class="card-body p-4">
+
+        <h3 class="card-title mb-4">
+          <span class="display-6 me-2">🛠️</span>
+          Device Reuse Marketplace
+        </h3>
+
+        <form method="post" id="reuseForm" class="row gy-3">
+          {% csrf_token %}
+          <input type="hidden" name="lat" id="userLat">
+          <input type="hidden" name="lng" id="userLng">
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Device Model</label>
+            <input name="model" class="form-control form-control-lg"
+                   placeholder="e.g., Dell Inspiron, iPhone 8" required>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Condition</label>
+            <select name="condition" class="form-select form-select-lg">
+              <option value="works">Works</option>
+              <option value="minor issue">Minor issue</option>
+              <option value="major issue">Major issue</option>
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Age (years)</label>
+            <input name="age" class="form-control form-control-lg" type="number" min="0" step="0.5">
+          </div>
+
+          <div class="col-12">
+            <button class="btn btn-success btn-lg w-100" type="submit">
+              <strong>Get Recommendation</strong>
+            </button>
+          </div>
+
+          {% if needs_location %}
+          <div class="col-12">
+            <button type="button" id="btnGetLocation"
+                    class="btn btn-outline-success w-100">
+              📍 Use My Location (for nearby repair shops)
+            </button>
+          </div>
+          {% endif %}
+
+        </form>
+      </div>
+    </div>
+
+    <!-- RECOMMENDATION CARD -->
+    {% if recommendation %}
+    <div class="card mt-4 shadow-lg border-success"
+         data-aos="zoom-in"
+         style="border-width: 3px !important;">
+
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center mb-3">
+
+          <div class="display-4 me-3">
+            {% if 'sell' in recommendation.lower %}
+              💰
+            {% elif 'donate' in recommendation.lower %}
+              ❤️
+            {% elif 'repair' in recommendation.lower %}
+              🔧
+            {% else %}
+              ♻️
+            {% endif %}
+          </div>
+
+          <div>
+            <h5 class="card-title mb-1">Recommended Action</h5>
+            <span class="badge text-bg-success fs-6 px-3 py-2">
+              {{ recommendation }}
+            </span>
+          </div>
+
+        </div>
+
+        <!-- FIXED GREEN BOX WITH READABLE TEXT -->
+        <div class="alert alert-success mb-0"
+             style="
+                background: linear-gradient(135deg, #d4f5e3, #eaf6ef);
+                border-left: 4px solid #52b788;
+                border-radius: 12px;
+                padding: 1rem;
+             ">
+          <p class="mb-0"
+             style="
+                color: #103b28 !important;
+                font-size: 1rem;
+                line-height: 1.7;
+                white-space: pre-line;
+             ">
+            {{ reasoning }}
+          </p>
+        </div>
+
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- RIGHT PANEL (Repair Shops) -->
+  <div class="col-lg-5">
+    <div class="card h-100 shadow-lg" data-aos="fade-left">
+
+      <div class="card-body p-4">
+        <h5 class="card-title mb-3">
+          <span class="me-2">📍</span>Nearby Repair Shops
+        </h5>
+
+        {% if shops %}
+        <div class="list-group list-group-flush">
+          {% for s in shops %}
+            <div class="list-group-item border-0 px-0 mb-3 pb-3"
+                 style="border-bottom: 1px solid rgba(0,0,0,0.1) !important;">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="mb-0 fw-bold">{{ s.name }}</h6>
+
+                {% if s.rating and s.rating != 'N/A' %}
+                  <span class="badge bg-success">⭐ {{ s.rating }}</span>
+                {% endif %}
+              </div>
+
+              <p class="small text-muted mb-1">{{ s.address }}</p>
+
+              {% if s.phone %}
+              <a href="tel:{{ s.phone }}"
+                 class="btn btn-sm btn-outline-success mt-2">
+                📞 {{ s.phone }}
+              </a>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+
+        {% else %}
+
+        <div class="alert alert-success text-center py-4"
+             style="
+                background: rgba(82, 183, 136, 0.15);
+                border: 1px solid rgba(82, 183, 136, 0.3);
+                border-radius: 12px;
+             ">
+          {% if needs_location %}
+            <p class="fw-semibold mb-2">📍 Enable location to find repair shops</p>
+          {% else %}
+            <p class="mb-0">No repair shops needed for this recommendation</p>
+          {% endif %}
+        </div>
+
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+
+{% block body_extra %}
+<script>
+document.getElementById('btnGetLocation')?.addEventListener('click', function() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      document.getElementById('userLat').value = pos.coords.latitude;
+      document.getElementById('userLng').value = pos.coords.longitude;
+      document.getElementById('reuseForm').submit();
+    }, function() {
+      alert('Location access denied. Enable location.');
+    });
+  } else {
+    alert('Browser does not support geolocation.');
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Eco Tips • E‑Waste Finder{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-8 mx-auto">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Eco Suggestion for Today</h5>
+        <p class="text-muted small">Date: {{ date }}</p>
+        <div class="fs-5">{{ tip }}</div>
+      </div>
+    </div>
+  </div>
+  </div>
+{% endblock %}
+
+

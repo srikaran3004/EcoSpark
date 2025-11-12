@@ -1,0 +1,809 @@
+/* ============================================
+   EcoSpark - Eco-Themed Design System
+   Modern, animated, sustainable UI
+   ============================================ */
+
+/* CSS Variables for Light/Dark Theme */
+:root {
+    /* Primary Colors */
+    --primary-green: #52b788;
+    --deep-green: #081c15;
+    --accent-green: #c1f0c1;
+    --gradient-start: #1b4332;
+    --gradient-mid: #2d6a4f;
+    --gradient-end: #52b788;
+    
+    /* Light Mode Colors */
+    --bg-primary: #f0f9f4;
+    --bg-secondary: #e8f5e9;
+    --text-primary: #081c15;
+    --text-secondary: #2d5016;
+    --card-bg: #ffffff;
+    --card-shadow: rgba(82, 183, 136, 0.15);
+    --navbar-bg: rgba(240, 249, 244, 0.98);
+    --navbar-text: #081c15;
+}
+
+/* Dark Mode Colors */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: #0a1f17;
+        --bg-secondary: #081c15;
+        --text-primary: #e8f5e9;
+        --text-secondary: #b0bec5;
+        --card-bg: #1b4332;
+        --card-shadow: rgba(0, 0, 0, 0.3);
+        --navbar-bg: rgba(8, 28, 21, 0.9);
+        --navbar-text: #e8f5e9;
+    }
+}
+
+/* Dark Mode Class (manual toggle) */
+[data-theme="dark"] {
+    --bg-primary: #0a1f17;
+    --bg-secondary: #081c15;
+    --text-primary: #e8f5e9;
+    --text-secondary: #b0bec5;
+    --card-bg: #1b4332;
+    --card-shadow: rgba(0, 0, 0, 0.3);
+    --navbar-bg: rgba(8, 28, 21, 0.9);
+    --navbar-text: #e8f5e9;
+}
+
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-color: var(--bg-primary);
+    /* Simplify background to reduce green cast and improve contrast */
+    background-image: none;
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    color: var(--text-primary) !important;
+}
+
+p, span, div, a {
+    color: inherit;
+}
+
+.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+/* Animated Background Layer */
+.bg-animation-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-end));
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    /* Soften green background overlay to make white UI more legible */
+    opacity: 0.06;
+    pointer-events: none;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Floating Particles Container */
+.particles-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--primary-green);
+    opacity: 0.05;
+    /* Animation handled by JavaScript for collision detection */
+}
+
+/* Glassmorphism Navbar */
+.navbar-glass {
+    background: var(--navbar-bg) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(82, 183, 136, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    z-index: 1000 !important;
+    position: relative;
+}
+
+/* Ensure navbar is always visible */
+.navbar-glass.sticky-top {
+    background: var(--navbar-bg) !important;
+}
+
+/* Fallback for browsers without backdrop-filter */
+@supports not (backdrop-filter: blur(10px)) {
+    .navbar-glass {
+        background: var(--bg-primary) !important;
+    }
+}
+
+.navbar-glass .navbar-brand,
+.navbar-glass .nav-link {
+    color: var(--navbar-text) !important;
+    transition: color 0.3s ease;
+}
+
+.navbar-glass .navbar-toggler {
+    border-color: var(--navbar-text);
+}
+
+.navbar-glass .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(8, 28, 21, 0.85)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+[data-theme="dark"] .navbar-glass .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(232, 245, 233, 0.85)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+@media (prefers-color-scheme: dark) {
+    .navbar-glass .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(232, 245, 233, 0.85)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+}
+
+.navbar-glass .nav-link:hover {
+    color: var(--primary-green) !important;
+    transform: translateY(-2px);
+}
+
+/* Animated Logo */
+.eco-logo {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, var(--primary-green), var(--accent-green));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: logoGlow 3s ease-in-out infinite;
+    text-decoration: none;
+}
+
+@keyframes logoGlow {
+    0%, 100% {
+        filter: drop-shadow(0 0 5px rgba(82, 183, 136, 0.5));
+    }
+    50% {
+        filter: drop-shadow(0 0 15px rgba(82, 183, 136, 0.8));
+    }
+}
+
+/* Main Content */
+.main-content {
+    position: relative;
+    z-index: 10;
+    padding: 2rem 0;
+    min-height: calc(100vh - 200px);
+    /* Keep neutral background for readability */
+    background: transparent;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.main-content .container {
+    position: relative;
+    z-index: 10;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Cards with Neumorphic Design */
+.card {
+    background: var(--card-bg) !important;
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px var(--card-shadow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    opacity: 1 !important;
+    visibility: visible !important;
+    color: var(--text-primary);
+}
+
+.card-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(82, 183, 136, 0.2);
+}
+
+/* Card Tilt Effect */
+.card-tilt {
+    transition: transform 0.3s ease;
+}
+
+.card-tilt:hover {
+    transform: perspective(1000px) rotateX(2deg) rotateY(-2deg);
+}
+
+/* Buttons with Glow Effect */
+.btn-success {
+    background: linear-gradient(135deg, var(--primary-green), var(--gradient-mid));
+    border: none;
+    border-radius: 12px;
+    padding: 0.6rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(82, 183, 136, 0.3);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(82, 183, 136, 0.5);
+    background: linear-gradient(135deg, var(--gradient-mid), var(--primary-green));
+}
+
+.btn-outline-success {
+    color: var(--primary-green);
+    border: 2px solid var(--primary-green);
+    border-radius: 12px;
+    padding: 0.6rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.btn-outline-success:hover {
+    background: var(--primary-green);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(82, 183, 136, 0.4);
+}
+
+/* Hero Section */
+.hero-green {
+    min-height: 500px;
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    margin-bottom: 3rem;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 1;
+}
+
+.hero-green .hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.7) saturate(1.2);
+    animation: parallaxScroll 20s ease-in-out infinite;
+}
+
+@keyframes parallaxScroll {
+    0%, 100% {
+        transform: scale(1) translateY(0);
+    }
+    50% {
+        transform: scale(1.05) translateY(-10px);
+    }
+}
+
+.hero-green .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(27, 67, 50, 0.7), rgba(45, 106, 79, 0.5), rgba(82, 183, 136, 0.3));
+    z-index: 1;
+}
+
+.hero-green .container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Image Styles */
+.object-cover {
+    object-fit: cover;
+    height: 220px;
+    border-radius: 16px;
+    transition: transform 0.3s ease;
+}
+
+.object-cover:hover {
+    transform: scale(1.05);
+}
+
+@media (min-width: 992px) {
+    .object-cover {
+        height: 260px;
+    }
+}
+
+img {
+    display: block;
+    max-width: 100%;
+    border-radius: 12px;
+}
+
+/* Feature and benefit icons */
+.feature-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px var(--card-shadow);
+}
+
+.benefit-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    box-shadow: 0 10px 20px var(--card-shadow);
+}
+
+/* Lazy Load Blur Effect */
+/* Apply progressive blur only to large media, not to small UI icons */
+.card-img-top[loading="lazy"],
+.carousel .carousel-item img[loading="lazy"] {
+    filter: blur(5px);
+    transition: filter 0.3s;
+}
+
+.card-img-top[loading="lazy"].loaded,
+.carousel .carousel-item img[loading="lazy"].loaded {
+    filter: blur(0);
+}
+
+/* Never blur small SVG/UI icons */
+.feature-icon[loading="lazy"],
+.benefit-icon[loading="lazy"] {
+    filter: none !important;
+}
+
+/* Leaflet map defaults - ensure visible on all themes */
+.leaflet-container {
+    background: #f7faf9; /* pale neutral */
+    z-index: 5; /* above any decorative layers */
+}
+
+/* Section Spacing */
+section {
+    scroll-margin-top: 100px;
+    padding: 3rem 0;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Container visibility */
+.container {
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Animated Footer */
+.eco-footer {
+    background: var(--bg-primary);
+    margin-top: 4rem;
+    position: relative;
+    padding-top: 0;
+    z-index: 10;
+    color: var(--text-primary);
+}
+
+.footer-wave {
+    display: block;
+    width: 100%;
+    height: 80px;
+    fill: var(--primary-green);
+    opacity: 0.8;
+    animation: waveFloat 8s ease-in-out infinite;
+}
+
+@keyframes waveFloat {
+    0%, 100% {
+        transform: translateY(0) scaleY(1);
+    }
+    25% {
+        transform: translateY(-8px) scaleY(1.05);
+    }
+    50% {
+        transform: translateY(0) scaleY(1);
+    }
+    75% {
+        transform: translateY(8px) scaleY(0.95);
+    }
+}
+
+/* Animate the SVG path for smooth wave motion */
+.footer-wave path {
+    animation: wavePathMotion 10s ease-in-out infinite;
+    transform-origin: 50% 50%;
+}
+
+@keyframes wavePathMotion {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    25% {
+        transform: translateY(-5px);
+    }
+    50% {
+        transform: translateY(0px);
+    }
+    75% {
+        transform: translateY(5px);
+    }
+}
+
+.eco-icons {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.eco-icon {
+    font-size: 2rem;
+    animation: iconFloat 3s ease-in-out infinite;
+    display: inline-block;
+}
+
+.eco-icon:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.eco-icon:nth-child(2) {
+    animation-delay: 1s;
+}
+
+.eco-icon:nth-child(3) {
+    animation-delay: 2s;
+}
+
+@keyframes iconFloat {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-10px) rotate(5deg);
+    }
+}
+
+/* Theme Toggle Button - Removed */
+
+/* Typewriter Effect (for hero text) */
+.typewriter {
+    display: inline-block;
+    overflow: hidden;
+    border-right: 3px solid rgba(255, 255, 255, 0.8);
+    white-space: nowrap;
+    animation: typing 3s steps(30, end), blink-caret 0.75s step-end infinite;
+    max-width: 100%;
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: rgba(255, 255, 255, 0.8); }
+}
+
+/* Smooth Scroll */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Active Nav Link */
+.nav-link.active {
+    color: var(--primary-green) !important;
+    font-weight: 600;
+    position: relative;
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 2px;
+    background: var(--primary-green);
+    border-radius: 2px;
+}
+
+/* Dropdown Menu Styling */
+.dropdown-menu {
+    background: var(--card-bg);
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px var(--card-shadow);
+    padding: 0.5rem;
+}
+
+.dropdown-item {
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+    color: var(--text-primary);
+}
+
+.dropdown-item:hover {
+    background: var(--primary-green);
+    color: white;
+    transform: translateX(5px);
+}
+
+/* Alert Styling */
+.alert {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    animation: slideInDown 0.5s ease;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Form Controls */
+.form-control,
+.form-select {
+    border-radius: 12px;
+    border: 2px solid rgba(82, 183, 136, 0.2);
+    padding: 0.6rem 1rem;
+    transition: all 0.3s ease;
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 0.2rem rgba(82, 183, 136, 0.25);
+    outline: none;
+}
+
+/* Progress Bar */
+.progress {
+    border-radius: 12px;
+    background: rgba(82, 183, 136, 0.1);
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--primary-green), var(--accent-green));
+    transition: width 0.6s ease;
+}
+
+/* Badge Styling */
+.badge {
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+    font-weight: 500;
+}
+
+/* Carousel Styling */
+.carousel {
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    width: 5%;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+    opacity: 1;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(82, 183, 136, 0.8);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .hero-green {
+        min-height: 400px;
+    }
+    
+    
+    .eco-logo {
+        font-size: 1.2rem;
+    }
+    
+    .typewriter {
+        font-size: 1.5rem;
+    }
+}
+
+/* Eco Modal Styling */
+.eco-modal-content {
+    background: linear-gradient(135deg, #1b4332, #2d6a4f) !important;
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
+.eco-modal-header {
+    background: rgba(45, 106, 79, 0.5);
+    border-bottom: 1px solid rgba(193, 240, 193, 0.2);
+    border-radius: 20px 20px 0 0;
+}
+
+.eco-modal-body {
+    background: transparent;
+    padding: 1.5rem;
+}
+
+.eco-modal-footer {
+    background: rgba(45, 106, 79, 0.3);
+    border-top: 1px solid rgba(193, 240, 193, 0.2);
+    border-radius: 0 0 20px 20px;
+}
+
+/* Print Styles */
+@media print {
+    .bg-animation-layer,
+    .particles-container {
+        display: none;
+    }
+}
+
+/* ============================================
+   Authentication Navigation Styles
+   ============================================ */
+
+/* Register Button in Navbar - Simplified to match other nav links */
+/* Auth Sparkle Button - Simple Gradient Text and Green Hover */
+
+.btn-auth-sparkle {
+    background: linear-gradient(135deg, #2d6a4f 0%, #52b788 100%) !important;
+    border-radius: 25px !important;
+    font-weight: 600 !important;
+    margin-left: 0.5rem;
+    padding: 0.5rem 1.2rem !important;
+    transition: all 0.3s ease !important;
+    position: relative;
+    color: #fff !important;
+    box-shadow: 0 4px 20px rgba(82, 183, 136, 0.15);
+}
+
+
+.btn-auth-sparkle:hover, .btn-auth-sparkle:focus {
+    background: linear-gradient(135deg, #40916c 0%, #52b788 100%) !important;
+    color: #fff !important;
+    box-shadow: 0 6px 25px rgba(82, 183, 136, 0.25);
+    animation: none;
+}
+
+/* Shining text on hover */
+
+.btn-auth-sparkle:hover span, .btn-auth-sparkle:focus span {
+    background: linear-gradient(90deg, #b7e4c7 10%, #52b788 50%, #1a4d2e 90%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: shineText 1.2s linear;
+}
+
+@keyframes shineText {
+    0% {
+        filter: brightness(1.2);
+    }
+    50% {
+        filter: brightness(2);
+    }
+    100% {
+        filter: brightness(1.2);
+    }
+}
+
+/* User Dropdown Styling */
+#userDropdown {
+    font-weight: 600;
+    background: rgba(82, 183, 136, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+#userDropdown:hover {
+    background: rgba(82, 183, 136, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Dropdown Menu Styling */
+.dropdown-menu {
+    background: var(--card-bg);
+    border: 1px solid rgba(82, 183, 136, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px var(--card-shadow);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 0.5rem;
+}
+
+.dropdown-item {
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+    margin-bottom: 0.2rem;
+}
+
+.dropdown-item:hover {
+    background: rgba(82, 183, 136, 0.15);
+    color: var(--primary-green);
+    transform: translateX(5px);
+}
+
+.dropdown-divider {
+    border-color: rgba(82, 183, 136, 0.2);
+    margin: 0.5rem 0;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 991px) {
+    .btn-auth-sparkle {
+        margin-left: 0;
+        margin-top: 0.5rem;
+        display: inline-block;
+        text-align: center;
+    }
+    
+    #userDropdown {
+        margin-top: 0.5rem;
+    }
+}

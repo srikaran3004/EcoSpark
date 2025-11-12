@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Login • EcoSpark{% endblock %}
+
+{% block head_extra %}
+<style>
+
+  .auth-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a4d2e 0%, #2d6a4f 50%, #52b788 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 3rem;
+  }
+
+  /* Floating e-waste icons */
+  .float-icon {
+    position: absolute;
+    font-size: 1.4rem;
+    opacity: 0.25;
+    animation: floatIcon 10s infinite ease-in-out;
+  }
+
+  @keyframes floatIcon {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-25px) rotate(15deg); }
+  }
+
+  .i1 { top: 15%; left: 10%; animation-delay: 0s; }
+  .i2 { top: 40%; right: 12%; animation-delay: 2s; }
+  .i3 { bottom: 20%; left: 25%; animation-delay: 1s; }
+  .i4 { bottom: 10%; right: 30%; animation-delay: 3s; }
+
+  /* Page title */
+  .auth-main-title {
+    color: white;
+    font-weight: 700;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 0.3rem;
+    letter-spacing: 0.5px;
+  }
+
+  .auth-tagline {
+    color: #d9fbe7;
+    text-align: center;
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Login card */
+  .auth-card {
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(20px);
+    border-radius: 18px;
+    padding: 1.8rem;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.8s ease-out;
+    position: relative;
+  }
+
+  /* Glow animation */
+  .auth-card::before {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #52b78888, #1a4d2e88);
+    filter: blur(20px);
+    animation: glow 3s infinite alternate ease-in-out;
+    z-index: -1;
+  }
+
+  @keyframes glow {
+    0% { opacity: 0.3; }
+    100% { opacity: 0.55; }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .form-group { margin-bottom: 0.9rem; }
+
+  .form-label {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #2d6a4f;
+    margin-bottom: 0.3rem;
+  }
+
+  .form-control {
+    border: 2px solid #d4f5e3;
+    border-radius: 8px;
+    padding: 0.55rem 0.9rem;
+    font-size: 0.85rem;
+    background: #f8fffe;
+    transition: 0.25s ease;
+  }
+
+  .form-control:focus {
+    border-color: #52b788;
+    box-shadow: 0 0 0 3px rgba(82,183,136,0.2);
+  }
+
+  /* Login Button */
+  .btn-eco-submit {
+    background: linear-gradient(135deg, #2d6a4f 0%, #52b788 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.65rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    width: 100%;
+    margin-top: 0.8rem;
+    overflow: hidden;
+    transition: 0.25s ease;
+    position: relative;
+  }
+
+  .btn-eco-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(45, 106, 79, 0.35);
+  }
+
+  /* Shine animation */
+  .btn-eco-submit::after {
+    content: "";
+    position: absolute;
+    left: -120%;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.2);
+    transform: skewX(-20deg);
+    transition: 0.6s ease;
+  }
+
+  .btn-eco-submit:hover::after {
+    left: 120%;
+  }
+
+  /* Divider text */
+  .divider {
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    text-align: center;
+    margin-top: 1rem;
+    margin-bottom: 0.6rem;
+  }
+
+  /* Create account button */
+  .btn-create-account {
+    display: inline-block;
+    background: linear-gradient(135deg, #52b788, #2d6a4f);
+    color: white !important;
+    padding: 0.55rem 1.1rem;
+    border-radius: 10px;
+    font-size: 0.87rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-create-account:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-create-account::after {
+    content: "";
+    position: absolute;
+    left: -120%;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.2);
+    transform: skewX(-20deg);
+    transition: 0.6s;
+  }
+
+  .btn-create-account:hover::after {
+    left: 120%;
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="auth-page">
+
+  <!-- Floating icons -->
+  <div class="float-icon i1">📱</div>
+  <div class="float-icon i2">🔋</div>
+  <div class="float-icon i3">💻</div>
+  <div class="float-icon i4">🖥️</div>
+
+  <!-- Main Title -->
+  <h1 class="auth-main-title">Welcome Back</h1>
+  <p class="auth-tagline">Join us again in reducing e-waste responsibly</p>
+
+  <!-- Login Card -->
+  <div class="auth-card">
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        {{ form.username }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        {{ form.password }}
+      </div>
+
+      <button type="submit" class="btn-eco-submit">Sign In</button>
+    </form>
+
+    <!-- Divider -->
+    <div class="divider">New to EcoSpark?</div>
+
+    <!-- Create Account Button -->
+    <div class="text-center mt-2">
+      <a href="{% url 'register' %}" class="btn-create-account">
+        ✨ Create an Account
+      </a>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Recycle or Reuse • E‑Waste Finder{% endblock %}
+{% block content %}
+<div class="row" style="margin-top: 2rem;">
+  <div class="col-lg-8 mx-auto">
+    <div class="card mb-4 shadow-lg" data-aos="fade-up">
+      <div class="card-body p-4">
+        <h3 class="card-title mb-4 text-center">
+          <span class="display-6 me-2">♻️</span>
+          Recycle-or-Reuse Decision Helper
+        </h3>
+        <form method="post" class="row g-3">
+          {% csrf_token %}
+          <div class="col-md-8">
+            <input name="item" class="form-control form-control-lg" placeholder="e.g., old TV, broken headphones, smartphone" value="{{ item|default:'' }}" required>
+          </div>
+          <div class="col-md-4 d-grid">
+            <button class="btn btn-success btn-lg" type="submit">
+              <strong>Get Decision</strong>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {% if result %}
+      <div class="card shadow-lg border-{% if result.decision == 'Reuse' %}success{% else %}warning{% endif %}" data-aos="zoom-in" style="border-width: 3px !important;">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="display-4 me-3">
+              {% if result.decision == 'Reuse' %}
+                ♻️
+              {% else %}
+                🔄
+              {% endif %}
+            </div>
+            <div>
+              <h5 class="card-title mb-1">Recommendation</h5>
+              <span class="badge {% if result.decision == 'Reuse' %}text-bg-success{% else %}text-bg-warning{% endif %} fs-6 px-3 py-2">
+                {{ result.decision }}
+              </span>
+            </div>
+          </div>
+          <div class="mb-0" style="background: {% if result.decision == 'Reuse' %}rgba(82, 183, 136, 0.15){% else %}rgba(255, 193, 7, 0.15){% endif %}; border-left: 4px solid {% if result.decision == 'Reuse' %}#52b788{% else %}#ffc107{% endif %}; border-radius: 8px; padding: 1rem;">
+            <p class="mb-0" style="line-height: 1.8; color: var(--text-primary) !important;">{{ result.reason }}</p>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+

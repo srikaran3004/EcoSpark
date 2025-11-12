@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}Pickup & Community Drive • E‑Waste Finder{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-8 mx-auto">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Schedule Pickup or Organize a Drive</h5>
+        <ul class="nav nav-tabs mb-3" id="pickupTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="pickup-tab" data-bs-toggle="tab" data-bs-target="#pickup" type="button" role="tab">Request Pickup</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="drive-tab" data-bs-toggle="tab" data-bs-target="#drive" type="button" role="tab">Organize Drive</button>
+          </li>
+        </ul>
+        <div class="tab-content" id="pickupTabsContent">
+          <div class="tab-pane fade show active" id="pickup" role="tabpanel">
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="drive_type" value="single_pickup">
+              <div class="row g-2 mb-2">
+                <div class="col-md-4">
+                  <input name="name" class="form-control" placeholder="Your name" required>
+                </div>
+                <div class="col-md-4">
+                  <input name="email" type="email" class="form-control" placeholder="Email" required>
+                </div>
+                <div class="col-md-4">
+                  <input name="phone" type="tel" class="form-control" placeholder="Phone number" required>
+                </div>
+              </div>
+              <div class="mb-2">
+                <textarea name="address" class="form-control" rows="2" placeholder="Full address" required></textarea>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-md-6">
+                  <select name="waste_type" class="form-select" required>
+                    <option value="">Select waste type</option>
+                    <option value="small">Small electronics</option>
+                    <option value="large">Large appliances</option>
+                    <option value="mixed">Mixed</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <input name="pickup_date" type="date" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                  <input name="pickup_time" type="time" class="form-control" required>
+                </div>
+              </div>
+              <button class="btn btn-success" type="submit">Request Pickup</button>
+            </form>
+          </div>
+          <div class="tab-pane fade" id="drive" role="tabpanel">
+            <form method="post">
+              {% csrf_token %}
+              <input type="hidden" name="drive_type" value="community_drive">
+              <div class="row g-2 mb-2">
+                <div class="col-md-4">
+                  <input name="name" class="form-control" placeholder="Organizer name" required>
+                </div>
+                <div class="col-md-4">
+                  <input name="email" type="email" class="form-control" placeholder="Email" required>
+                </div>
+                <div class="col-md-4">
+                  <input name="phone" type="tel" class="form-control" placeholder="Phone number" required>
+                </div>
+              </div>
+              <div class="mb-2">
+                <textarea name="address" class="form-control" rows="2" placeholder="Drive location address" required></textarea>
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-md-6">
+                  <select name="waste_type" class="form-select" required>
+                    <option value="">Select waste type</option>
+                    <option value="small">Small electronics</option>
+                    <option value="large">Large appliances</option>
+                    <option value="mixed">Mixed</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <input name="pickup_date" type="date" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                  <input name="pickup_time" type="time" class="form-control" required>
+                </div>
+              </div>
+              <button class="btn btn-success" type="submit">Organize a Drive</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% if success and confirmation_data %}
+      <div class="card mt-3 border-success" data-aos="fade-up">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-2">
+            <div class="display-6 me-2">✅</div>
+            <h6 class="mb-0">Request Confirmed!</h6>
+          </div>
+          <p class="mb-1"><strong>Name:</strong> {{ confirmation_data.name }}</p>
+          <p class="mb-1"><strong>Phone:</strong> {{ confirmation_data.phone }}</p>
+          <p class="mb-1"><strong>Type:</strong> {% if confirmation_data.drive_type == "community_drive" %}Community Drive{% else %}Single Pickup{% endif %}</p>
+          <p class="mb-1"><strong>Date:</strong> {{ confirmation_data.pickup_date }} at {{ confirmation_data.pickup_time }}</p>
+          <div class="alert alert-success mt-3 mb-0">
+            <p class="mb-0">✅ Your request has been successfully logged. Our team will contact you shortly!</p>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+

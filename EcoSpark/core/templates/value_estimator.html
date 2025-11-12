@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Urban Mining Value Estimator • E‑Waste Finder{% endblock %}
+{% block content %}
+<div class="row g-3" style="margin-top: 2rem;">
+  <div class="col-lg-10 mx-auto">
+    <div class="card shadow-lg" data-aos="fade-up">
+      <div class="card-body p-4">
+        <h3 class="card-title mb-4 text-center">
+          <span class="display-6 me-2">🏷️</span>
+          Urban Mining Value Estimator
+        </h3>
+        <p class="text-center text-muted mb-4">Get AI-powered estimates of recoverable precious metals in your device</p>
+        <form method="post" class="row gy-3">
+          {% csrf_token %}
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Device Model</label>
+            <input name="model" class="form-control form-control-lg" placeholder="e.g., iPhone 12, Dell XPS 13, Samsung Galaxy" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Age (years)</label>
+            <input name="age" class="form-control form-control-lg" placeholder="e.g., 3" type="number" min="0" step="0.5">
+          </div>
+          <div class="col-md-2 d-grid">
+            <label class="form-label fw-semibold">&nbsp;</label>
+            <button class="btn btn-success btn-lg" type="submit">
+              <strong>Estimate</strong>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {% if result %}
+      <div class="card mt-4 shadow-lg border-info" data-aos="zoom-in" style="border-width: 3px !important;">
+        <div class="card-body p-4">
+          <h5 class="card-title mb-4 text-center">
+            <span class="me-2">💰</span>
+            Estimated Value for {{ result.model|title }}
+          </h5>
+          
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <div class="card bg-warning bg-opacity-10 border-warning">
+                <div class="card-body text-center">
+                  <div class="display-6 mb-2">🥇</div>
+                  <div class="fw-bold">Gold</div>
+                  <div class="h5 mb-1">{{ result.metals.gold_g }} g</div>
+                  <div class="small text-muted">₹{{ result.prices.gold_g|floatformat:0 }}/g</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-danger bg-opacity-10 border-danger">
+                <div class="card-body text-center">
+                  <div class="display-6 mb-2">🔴</div>
+                  <div class="fw-bold">Copper</div>
+                  <div class="h5 mb-1">{{ result.metals.copper_g }} g</div>
+                  <div class="small text-muted">₹{{ result.prices.copper_g|floatformat:2 }}/g</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card bg-secondary bg-opacity-10 border-secondary">
+                <div class="card-body text-center">
+                  <div class="display-6 mb-2">⚪</div>
+                  <div class="fw-bold">Silver</div>
+                  <div class="h5 mb-1">{{ result.metals.silver_g }} g</div>
+                  <div class="small text-muted">₹{{ result.prices.silver_g|floatformat:0 }}/g</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info mb-3">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <strong>Base Metal Value:</strong>
+              </div>
+              <div class="col-md-6 text-end">
+                <span class="h5 mb-0">₹{{ result.base_value|floatformat:2 }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-success">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <strong>Estimated Payout ({{ result.age_years }} years old):</strong>
+              </div>
+              <div class="col-md-6 text-end">
+                <span class="h4 mb-0 text-success">₹{{ result.estimated_payout|floatformat:2 }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-muted small text-center mt-3">
+            <em>Note: Values are AI-estimated for awareness purposes, not a binding quote. Actual values may vary.</em>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+

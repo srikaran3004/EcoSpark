@@ -1,0 +1,536 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Profile • EcoSpark{% endblock %}
+
+{% block head_extra %}
+<style>
+  /* Eco-themed profile page styles */
+  .profile-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a4d2e 0%, #2d6a4f 50%, #52b788 100%);
+    position: relative;
+    overflow: hidden;
+    padding: 3rem 0;
+  }
+  
+  /* Animated background shapes */
+  .profile-page::before,
+  .profile-page::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    animation: float 20s infinite ease-in-out;
+  }
+  
+  .profile-page::before {
+    width: 500px;
+    height: 500px;
+    top: -150px;
+    right: -150px;
+    animation-delay: 0s;
+  }
+  
+  .profile-page::after {
+    width: 400px;
+    height: 400px;
+    bottom: -100px;
+    left: -100px;
+    animation-delay: 10s;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -30px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
+  
+  /* Profile header card */
+  .profile-header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 10;
+    animation: slideDown 0.6s ease-out;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2d6a4f 0%, #52b788 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+    margin: 0 auto 1rem;
+    box-shadow: 0 10px 30px rgba(45, 106, 79, 0.3);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  
+  .profile-username {
+    color: #1a4d2e !important;
+    font-weight: 700;
+    font-size: 1.8rem;
+    margin-bottom: 0.25rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profile-email {
+    color: #52b788;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .profile-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+  
+  .stat-item {
+    text-align: center;
+  }
+  
+  .stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d6a4f;
+  }
+  
+  .stat-label {
+    display: block;
+    font-size: 0.85rem;
+    color: #52b788;
+  }
+  
+  /* Section cards */
+  .profile-section {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 10;
+    animation: slideUp 0.6s ease-out;
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .profile-section:nth-child(3) {
+    animation-delay: 0.1s;
+  }
+  
+  .profile-section:nth-child(4) {
+    animation-delay: 0.2s;
+  }
+  
+  .section-title {
+    color: #1a4d2e !important;
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .section-title span {
+    color: #1a4d2e !important;
+  }
+  
+  .section-subtitle {
+    color: #52b788;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Form styling */
+  .form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  
+  .form-label {
+    font-weight: 600;
+    color: #1a4d2e !important;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    display: block;
+  }
+  
+  .form-control {
+    border: 2px solid #d4f5e3;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background: #f8fffe;
+    width: 100%;
+    color: #1a4d2e !important;
+  }
+  
+  .form-control:focus {
+    border-color: #52b788;
+    box-shadow: 0 0 0 4px rgba(82, 183, 136, 0.1);
+    background: #fff;
+    outline: none;
+  }
+  
+  .form-control:disabled {
+    background: #f0f0f0;
+    color: #999;
+    cursor: not-allowed;
+  }
+  
+  .form-control::placeholder {
+    color: #95d5b2;
+  }
+  
+  /* Name row for first and last name */
+  .name-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  /* Buttons */
+  .btn-eco-primary {
+    background: linear-gradient(135deg, #2d6a4f 0%, #52b788 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 0.9rem 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-eco-primary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+  
+  .btn-eco-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(45, 106, 79, 0.3);
+  }
+  
+  .btn-eco-primary:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+  
+  .btn-eco-primary:active {
+    transform: translateY(0);
+  }
+  
+  .btn-eco-secondary {
+    background: transparent;
+    color: #52b788;
+    border: 2px solid #52b788;
+    border-radius: 12px;
+    padding: 0.9rem 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-eco-secondary:hover {
+    background: #52b788;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(82, 183, 136, 0.2);
+  }
+  
+  .btn-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  /* Alert messages */
+  .alert {
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    border: none;
+    animation: slideIn 0.4s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .alert-success {
+    background: linear-gradient(135deg, #d4f5e3, #eaf6ef);
+    color: #2d6a4f;
+    border-left: 4px solid #52b788;
+  }
+  
+  .alert-danger, .alert-error {
+    background: linear-gradient(135deg, #ffe0e0, #fff0f0);
+    color: #c41e3a;
+    border-left: 4px solid #e63946;
+  }
+  
+  /* Info box */
+  .info-box {
+    background: linear-gradient(135deg, #f0fff6, #eaf6ef);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #52b788;
+  }
+  
+  .info-box p {
+    margin: 0;
+    color: #2d6a4f;
+    font-size: 0.9rem;
+  }
+  
+  /* Floating leaves animation */
+  .leaf {
+    position: absolute;
+    font-size: 1.5rem;
+    opacity: 0.3;
+    animation: fall 15s infinite linear;
+  }
+  
+  @keyframes fall {
+    0% {
+      transform: translateY(-100px) rotate(0deg);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.3;
+    }
+    90% {
+      opacity: 0.3;
+    }
+    100% {
+      transform: translateY(100vh) rotate(360deg);
+      opacity: 0;
+    }
+  }
+  
+  .leaf:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 12s; }
+  .leaf:nth-child(2) { left: 30%; animation-delay: 3s; animation-duration: 15s; }
+  .leaf:nth-child(3) { left: 50%; animation-delay: 6s; animation-duration: 18s; }
+  .leaf:nth-child(4) { left: 70%; animation-delay: 9s; animation-duration: 14s; }
+  .leaf:nth-child(5) { left: 90%; animation-delay: 12s; animation-duration: 16s; }
+  
+  @media (max-width: 768px) {
+    .profile-section {
+      padding: 2rem 1.5rem;
+    }
+    
+    .name-row {
+      grid-template-columns: 1fr;
+    }
+    
+    .btn-group {
+      flex-direction: column;
+    }
+    
+    .btn-eco-primary,
+    .btn-eco-secondary {
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+  <!-- Floating leaves -->
+  <div class="leaf">🍃</div>
+  <div class="leaf">🌿</div>
+  <div class="leaf">🍃</div>
+  <div class="leaf">🌱</div>
+  <div class="leaf">🍃</div>
+  
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        
+        <!-- Profile Header -->
+        <div class="profile-header text-center">
+          <div class="profile-avatar">👤</div>
+          <h1 class="profile-username">{{ user.username }}</h1>
+          <p class="profile-email">{{ user.email }}</p>
+          
+          <div class="profile-stats">
+            <div class="stat-item">
+              <span class="stat-value">♻️</span>
+              <span class="stat-label">Eco Warrior</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">🌱</span>
+              <span class="stat-label">Active Member</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">🌍</span>
+              <span class="stat-label">Green Champion</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Messages -->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+        
+        <!-- Profile Update Section -->
+        <div class="profile-section">
+          <h2 class="section-title">
+            <span>✏️</span>
+            <span>Edit Profile</span>
+          </h2>
+          <p class="section-subtitle">Update your personal information</p>
+          
+          <div class="info-box">
+            <p>🔒 Your email cannot be changed for security reasons</p>
+          </div>
+          
+          <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <div class="name-row">
+              <div class="form-group">
+                <label class="form-label" for="{{ profile_form.first_name.id_for_label }}">First Name</label>
+                {{ profile_form.first_name }}
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label" for="{{ profile_form.last_name.id_for_label }}">Last Name</label>
+                {{ profile_form.last_name }}
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="{{ profile_form.username.id_for_label }}">Username</label>
+              {{ profile_form.username }}
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="{{ profile_form.email.id_for_label }}">Email Address</label>
+              {{ profile_form.email }}
+            </div>
+            
+            <div class="btn-group">
+              <button type="submit" name="update_profile" class="btn-eco-primary">
+                <span style="position: relative; z-index: 1;">Save Changes ✨</span>
+              </button>
+              <a href="{% url 'home' %}" class="btn-eco-secondary">Cancel</a>
+            </div>
+          </form>
+        </div>
+        
+        <!-- Password Change Section -->
+        <div class="profile-section">
+          <h2 class="section-title">
+            <span>🔐</span>
+            <span>Change Password</span>
+          </h2>
+          <p class="section-subtitle">Update your password to keep your account secure</p>
+          
+          <div class="info-box">
+            <p>💡 Use a strong password with a mix of letters, numbers, and symbols</p>
+          </div>
+          
+          <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <div class="form-group">
+              <label class="form-label" for="{{ password_form.old_password.id_for_label }}">Current Password</label>
+              {{ password_form.old_password }}
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="{{ password_form.new_password1.id_for_label }}">New Password</label>
+              {{ password_form.new_password1 }}
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="{{ password_form.new_password2.id_for_label }}">Confirm New Password</label>
+              {{ password_form.new_password2 }}
+            </div>
+            
+            <div class="btn-group">
+              <button type="submit" name="change_password" class="btn-eco-primary">
+                <span style="position: relative; z-index: 1;">Update Password 🔒</span>
+              </button>
+            </div>
+          </form>
+        </div>
+        
+        <!-- Logout Section -->
+        <div class="profile-section text-center">
+          <p style="color: #52b788; margin-bottom: 1rem;">Need to take a break?</p>
+          <a href="{% url 'logout' %}" class="btn-eco-secondary">Logout 👋</a>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

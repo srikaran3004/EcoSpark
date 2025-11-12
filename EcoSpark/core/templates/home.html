@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Home • E‑Waste Finder{% endblock %}
+{% block content %}
+
+<!-- Hero Section with background image and overlay -->
+<section class="hero-green position-relative overflow-hidden rounded-3 mb-4" data-aos="fade-in">
+  <!-- Updated hero background image (consider hosting locally for performance & stability) -->
+  <img class="hero-bg" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyq8omYPAzbevS09ZtYAxPz734AG9NLQarDg&s" alt="E-waste recycling awareness background" loading="eager" />
+  <div class="hero-overlay"></div>
+  <div class="container py-5 position-relative" data-aos="fade-up" data-aos-delay="200">
+    <h1 class="display-4 fw-bold text-white mb-3" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.3);">
+      <span class="typewriter">Discover • Learn • Recycle</span>
+    </h1>
+    <p class="col-lg-7 fs-5 text-white mb-4" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.3);">
+      Find nearby e‑waste recycling centers, learn why proper disposal matters, and earn credits for responsible action.
+    </p>
+    <div class="d-flex gap-3 flex-wrap">
+      <a class="btn btn-light btn-lg px-4 py-3" href="/centers/" style="box-shadow: 0 4px 15px rgba(255,255,255,0.3);">
+        <strong>Find Centers</strong>
+      </a>
+      <a class="btn btn-outline-light btn-lg px-4 py-3" href="#features" style="border-width: 2px;">
+        <strong>Explore Features</strong>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Feature Cards -->
+<section id="features" class="py-4">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="0">
+        <div class="card card-hover card-tilt h-100">
+          <!-- Updated Recycling Centers image -->
+          <img class="card-img-top object-cover" src="https://3rrecycler.com/wp-content/uploads/2023/06/ey-waste-bin-full-of-e-waste.jpg.rendition.1800.1200.jpg" alt="E-waste bin full of discarded electronics" loading="lazy" />
+          <div class="card-body">
+            <h5 class="card-title fw-bold">Recycling Centers</h5>
+            <p class="card-text text-muted">See certified centers near you on a beautiful map and get live suggestions.</p>
+            <a class="btn btn-success" href="/centers/">Open Map</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="card card-hover card-tilt h-100">
+          <!-- Updated Learn with AI image -->
+          <img class="card-img-top object-cover" src="https://www.infolks.info/blog/wp-content/uploads/2024/03/AI-WASTE-MANAGEMENT-3.jpg" alt="AI driven waste management concept" loading="lazy" />
+        <div class="card-body">
+            <h5 class="card-title fw-bold">Learn with AI</h5>
+            <p class="card-text text-muted">Ask about harmful components; get concise, actionable explanations.</p>
+            <a class="btn btn-outline-success" href="/education/">Start Learning</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="card card-hover card-tilt h-100">
+          <!-- Updated Earn Credits image -->
+          <img class="card-img-top object-cover" src="https://t4.ftcdn.net/jpg/02/48/39/75/360_F_248397538_OsyBnjShqT7IRsCRIgVSkq5dSWbwRN0g.jpg" alt="Electronic components representing value recovery" loading="lazy" />
+          <div class="card-body">
+            <h5 class="card-title fw-bold">Earn Credits</h5>
+            <p class="card-text text-muted">Input your device model, estimate recoverables, and track your eco impact.</p>
+            <a class="btn btn-success" href="/credits/">Earn Now</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Secondary Modules Showcase -->
+<section class="py-5" style="background: var(--bg-secondary);">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-md-6" data-aos="fade-right">
+        <div class="card h-100 card-hover">
+          <div class="card-body d-flex align-items-center">
+            <img src="{% static 'img/eco-tips.svg' %}" class="me-3 feature-icon" width="56" height="56" alt="Eco tips icon" />
+            <div>
+              <h5 class="card-title">Eco Tips</h5>
+              <p class="mb-2">Get a daily eco‑friendly suggestion powered by AI.</p>
+              <a href="/eco-tips/" class="btn btn-outline-success btn-sm">Read Tip</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6" data-aos="fade-left">
+        <div class="card h-100 card-hover">
+          <div class="card-body d-flex align-items-center">
+            <img src="{% static 'img/quiz.svg' %}" class="me-3 feature-icon" width="56" height="56" alt="Quiz icon" />
+            <div>
+              <h5 class="card-title">AI Quiz</h5>
+              <p class="mb-2">Test your knowledge with 5 quick questions.</p>
+              <a href="/quiz/" class="btn btn-outline-success btn-sm">Take Quiz</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6" data-aos="fade-right">
+        <div class="card h-100 card-hover">
+          <div class="card-body d-flex align-items-center">
+            <img src="{% static 'img/recycle-decision.svg' %}" class="me-3 feature-icon" width="56" height="56" alt="Recycle vs reuse icon" />
+            <div>
+              <h5 class="card-title">Recycle or Reuse</h5>
+              <p class="mb-2">Unsure about an item? Get an instant recommendation.</p>
+              <a href="/decision/" class="btn btn-outline-success btn-sm">Get Decision</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6" data-aos="fade-left">
+        <div class="card h-100 card-hover">
+          <div class="card-body d-flex align-items-center">
+            <img src="{% static 'img/reuse.svg' %}" class="me-3 feature-icon" width="56" height="56" alt="Reuse marketplace icon" />
+            <div>
+              <h5 class="card-title">Reuse Marketplace</h5>
+              <p class="mb-2">Get suggestions to sell, donate, or repair with reasoning.</p>
+              <a href="/reuse/" class="btn btn-outline-success btn-sm">Open</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6" data-aos="fade-right">
+        <div class="card h-100 card-hover">
+          <div class="card-body d-flex align-items-center">
+            <img src="{% static 'img/value-estimator.svg' %}" class="me-3 feature-icon" width="56" height="56" alt="Value estimator icon" />
+            <div>
+              <h5 class="card-title">Value Estimator</h5>
+              <p class="mb-2">Estimate recoverable metals and indicative value.</p>
+              <a href="/value/" class="btn btn-outline-success btn-sm">Estimate</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6" data-aos="fade-left">
+        <div class="card h-100 card-hover">
+          <div class="card-body d-flex align-items-center">
+            <img src="{% static 'img/hazard.svg' %}" class="me-3 feature-icon" width="56" height="56" alt="Hazard visualiser icon" />
+            <div>
+              <h5 class="card-title">Hazard Visualiser</h5>
+              <p class="mb-2">See how components impact health & environment.</p>
+              <a href="/hazard/" class="btn btn-outline-success btn-sm">Visualise</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Image Carousel -->
+<section class="py-5">
+  <div class="container" data-aos="zoom-in">
+    <div id="ecoCarousel" class="carousel slide rounded-3 overflow-hidden" style="box-shadow: 0 12px 40px rgba(82, 183, 136, 0.2);" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <img src="https://www.rsgsolutions.co.in/wp-content/uploads/2020/12/ewm.jpg" class="d-block w-100" style="height: 400px; object-fit: cover;" alt="E-waste materials ready for processing" loading="lazy" />
+        </div>
+        <div class="carousel-item">
+          <img src="https://lh3.googleusercontent.com/proxy/Hj6NNhr2zEU6dnkXaFoQesBCyOslnTA4TfvaeJtmTFRIXwl1BLfxSr5boVYqUG8rprbytrKI5ev3lD-8DSQgodI-sZuJYQ" class="d-block w-100" style="height: 400px; object-fit: cover;" alt="Informal e-waste handling scenario" loading="lazy" />
+        </div>
+        <div class="carousel-item">
+          <img src="https://www.collidu.com/media/catalog/product/img/1/f/1ff8b6ab1a80de9f08ba100f8a702c1ce1d28d57d017de2432650d1bef4bcbdb/e-waste-recycling-slide2.png" class="d-block w-100" style="height: 400px; object-fit: cover;" alt="Infographic explaining e-waste recycling flow" loading="lazy" />
+        </div>
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#ecoCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#ecoCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Why It Matters Section -->
+<section class="py-5">
+  <div class="container">
+    <div class="row mb-4" data-aos="fade-up">
+      <div class="col-lg-8 mx-auto text-center">
+        <h2 class="fw-bold mb-3">Why Responsible E‑Waste Matters</h2>
+        <p class="lead text-muted">Sustainable electronics reduce pollution, protect health, and recover valuable materials. Your action today creates a greener tomorrow.</p>
+      </div>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="0">
+        <div class="card h-100 card-hover card-tilt">
+          <div class="card-body text-center p-4">
+            <img src="{% static 'img/protect-nature.svg' %}" class="mb-3 benefit-icon" width="72" height="72" alt="Protect nature icon" />
+            <h5 class="fw-bold mb-3">Protect Nature</h5>
+            <p class="mb-0 text-muted">Keep toxins out of soil and waterways by recycling safely.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+        <div class="card h-100 card-hover card-tilt">
+          <div class="card-body text-center p-4">
+            <img src="{% static 'img/recover-materials.svg' %}" class="mb-3 benefit-icon" width="72" height="72" alt="Recover materials icon" />
+            <h5 class="fw-bold mb-3">Recover Materials</h5>
+            <p class="mb-0 text-muted">Gold, copper, and silver can be reused instead of mined again.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="card h-100 card-hover card-tilt">
+          <div class="card-body text-center p-4">
+            <img src="{% static 'img/protect-health.svg' %}" class="mb-3 benefit-icon" width="72" height="72" alt="Protect health icon" />
+            <h5 class="fw-bold mb-3">Protect Health</h5>
+            <p class="mb-0 text-muted">Avoid exposure to lead and mercury—dispose at certified centers.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+

@@ -1,0 +1,472 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Recycling Centers • EcoSpark{% endblock %}
+{% block head_extra %}
+  <!-- Leaflet core CSS FIRST -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <style>
+    /* Ensure the page can compute heights */
+    html, body { height: 100%; }
+  body { background: linear-gradient(180deg, rgba(82,183,136,0.08), rgba(82,183,136,0.02)) !important; }
+
+    .centers-layout { display: grid; grid-template-columns: 1fr 380px; gap: 1.5rem; margin-top: 1rem; }
+    @media (max-width: 992px) { .centers-layout { grid-template-columns: 1fr; } .side-panel { order: -1; } }
+    
+    /* Map container + wrapper must have a reliable height */
+    #map-wrapper { 
+      position: relative; 
+      border-radius: 16px; 
+      overflow: hidden; 
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12); 
+      background: #ffffff;
+      border: 2px solid #e0e0e0;
+      min-height: 560px;           /* hard floor */
+      margin-top: 1rem;
+    }
+    #map { 
+      width: 100%; 
+      height: calc(100vh - 380px); /* responsive height, adjusted for controls above */
+      min-height: 450px;           /* hard floor */
+      background: #eaf6ef !important;
+      z-index: 1 !important;
+    }
+
+    /* Leaflet base styles */
+    .leaflet-container { background: #e5e3df !important; font-family: inherit !important; }
+    .leaflet-tile-pane { opacity: 1 !important; }
+    
+    .map-controls-top { 
+      display: flex; flex-wrap: wrap; gap: 0.75rem; 
+      margin-bottom: 1rem;
+    }
+
+    .control-block { 
+      backdrop-filter: blur(12px); 
+      background: rgba(240, 253, 244, 0.95); 
+      border: 2px solid rgba(82, 183, 136, 0.5); 
+      padding: 1rem; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15); 
+      flex: 1 1 260px; 
+      min-width: 260px;
+    }
+    .control-block h6 { font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; margin: 0 0 0.6rem; color: #2d6a4f !important; }
+    .inline-fields { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .inline-fields > * { flex: 1; min-width: 120px; }
+    .inline-fields input, .inline-fields select { background: rgba(45, 106, 79, 0.9) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.3); }
+    .inline-fields input::placeholder { color: rgba(255,255,255,0.7) !important; }
+    .inline-fields select option { background: #2d6a4f; color: #fff; }
+    
+    .status-bar { 
+      position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); 
+      z-index: 1000; backdrop-filter: blur(12px); background: rgba(0,0,0,0.85); 
+      color: #fff !important; padding: 0.65rem 1.25rem; border-radius: 24px; 
+      font-size: 0.85rem; font-weight: 500; box-shadow: 0 4px 16px rgba(0,0,0,0.3); 
+      display: flex; align-items: center; gap: 0.6rem; max-width: 90%;
+    }
+    .status-bar.loading .spinner { display: inline-block; }
+    .spinner { display: none; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    .side-panel { display: flex; flex-direction: column; gap: 1rem; }
+    .results-card, .saved-card { border: none; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .results-card { border-left: 4px solid #198754; background: linear-gradient(135deg, rgba(45, 106, 79, 0.95), rgba(45, 106, 79, 0.85)); }
+    .saved-card { border-left: 4px solid #52b788; background: linear-gradient(135deg, rgba(45, 106, 79, 0.95), rgba(45, 106, 79, 0.85)); }
+    .results-card .card-header, .saved-card .card-header { background: rgba(240, 253, 244, 0.95) !important; border-bottom: 1px solid rgba(0,0,0,0.1); font-weight: 700; color: #222 !important; }
+    .results-card .card-header *, .saved-card .card-header * { color: #222 !important; }
+    .result-item { padding: 0.85rem; border-bottom: 1px solid rgba(0,0,0,0.06); transition: all 0.2s; background: rgba(45, 106, 79, 0.85); color: #fff !important; }
+    .result-item:hover { background: rgba(45, 106, 79, 0.95); }
+    .result-item:last-child { border-bottom: none; }
+    .result-item strong { color: #fff !important; display: block; margin-bottom: 0.25rem; }
+    .result-item small { color: rgba(255,255,255,0.85) !important; }
+    .empty-hint { padding: 3rem 1.5rem; text-align: center; color: rgba(255,255,255,0.7) !important; font-style: italic; }
+    .btn-icon { display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
+    .map-badge-stack { position: absolute; top: 1rem; right: 1rem; display: flex; flex-direction: column; gap: 0.5rem; z-index: 999; }
+    .map-badge-stack .badge { backdrop-filter: blur(8px); background: rgba(0,0,0,0.7); color: #fff !important; font-weight: 600; padding: 0.4rem 0.8rem; border-radius: 6px; }
+    
+    /* Force readable text */
+    .centers-layout, .centers-layout h2 { color: #222 !important; }
+    .map-overlay-controls, .map-overlay-controls * { color: #222 !important; }
+    .map-overlay-controls input, .map-overlay-controls select { color: #fff !important; }
+    .side-panel .card-header, .side-panel .card-header * { color: #2d6a4f !important; }
+    .result-item, .result-item *, .empty-hint { color: #fff !important; }
+    #status-text { color: #fff !important; }
+    .result-item a { color: #a7e9c4 !important; text-decoration: none; }
+    .result-item a:hover { text-decoration: underline; color: #d4f5e3 !important; }
+    
+    /* Tile layer selector */
+    .leaflet-control-layers { border: 2px solid #52b788 !important; border-radius: 8px !important; }
+    
+    /* Sparkling animated title */
+    .page-title {
+      position: relative;
+      display: inline-block;
+      background: linear-gradient(135deg, #2d6a4f 0%, #52b788 50%, #2d6a4f 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+      transition: all 0.3s ease;
+    }
+    .page-title:hover {
+      transform: scale(1.03);
+      text-shadow: 0 0 20px rgba(82, 183, 136, 0.3);
+      filter: drop-shadow(0 2px 8px rgba(82, 183, 136, 0.4));
+    }
+    @keyframes shimmer {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="d-flex align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="mb-0 page-title">🗺️ Recycling Centers Map</h2>
+    <span class="badge text-bg-success">Live</span>
+    <span class="badge text-bg-light border" style="color: #2d6a4f !important; background: #eaf6ef;">EcoSpark Green Theme</span>
+  </div>
+
+<div class="centers-layout">
+  <div data-aos="fade-up">
+    <div class="map-controls-top" id="controls">
+      <div class="control-block" style="flex: 2 1 360px;">
+        <h6>🔍 Discover Centers</h6>
+        <div class="inline-fields mb-2">
+          <input id="place-input" class="form-control form-control-sm" placeholder="City or area name">
+          <select id="country-code" class="form-select form-select-sm">
+            <option value="in" selected>🇮🇳 India</option>
+            <option value="us">🇺🇸 USA</option>
+            <option value="gb">🇬🇧 UK</option>
+            <option value="ca">🇨🇦 Canada</option>
+            <option value="au">🇦🇺 Australia</option>
+          </select>
+          <select id="radius-km" class="form-select form-select-sm">
+            <option value="5">5 km</option>
+            <option value="10" selected>10 km</option>
+            <option value="15">15 km</option>
+            <option value="25">25 km</option>
+            <option value="50">50 km</option>
+          </select>
+        </div>
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="limit-to-bounds" checked>
+            <label class="form-check-label small" for="limit-to-bounds">Limit to map view</label>
+          </div>
+          <button id="btn-search-place" class="btn btn-success btn-sm flex-grow-1 btn-icon" type="button">🔍 <span>Search Area</span></button>
+          <button id="btn-use-location" class="btn btn-outline-success btn-sm btn-icon" type="button">📍 <span>My Location</span></button>
+          <button id="btn-clear-live" class="btn btn-outline-secondary btn-sm" type="button">Clear</button>
+        </div>
+      </div>
+      
+      <div class="control-block" style="flex: 1 1 220px;">
+        <h6>📌 Legend</h6>
+        <div class="small mb-1" style="color: #222 !important;"><span class="badge text-bg-success">Saved</span> Database centers</div>
+        <div class="small mb-1" style="color: #222 !important;"><span class="badge text-bg-warning text-dark">Live</span> Google Places</div>
+        <div class="small" style="color: #222 !important;"><span class="badge text-bg-dark">You</span> Your location</div>
+      </div>
+    </div>
+
+    <div id="map-wrapper">
+      <div id="map" aria-label="Map container"></div>
+      
+      <div class="map-badge-stack">
+        <span class="badge">Interactive Map</span>
+        <span class="badge">Leaflet.js</span>
+      </div>
+      
+      <div id="status-bar" class="status-bar">
+        <span class="spinner"></span>
+        <span id="status-text">Map ready. Search to load centers.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="side-panel" data-aos="fade-left">
+    <div class="card results-card shadow-sm" id="live-results-card">
+      <div class="card-header d-flex justify-content-between align-items-center py-2">
+        <strong class="small text-uppercase">Live Nearby Centers</strong>
+        <span id="live-count" class="badge text-bg-light text-dark">0</span>
+      </div>
+      <div class="card-body p-0" id="live-results">
+        <div class="empty-hint small">Use search or location button to find centers near you.</div>
+      </div>
+    </div>
+    
+    <div class="card shadow-sm saved-card">
+      <div class="card-header d-flex justify-content-between align-items-center py-2">
+        <strong class="small text-uppercase">Saved Centers (DB)</strong>
+        <span class="badge text-bg-light text-dark">{{ centers|length }}</span>
+      </div>
+      <div class="card-body p-0" style="max-height: 340px; overflow-y: auto;">
+        {% if centers %}
+          <div class="vstack gap-0">
+            {% for center in centers %}
+            <div class="result-item">
+              <strong>{{ center.name }}</strong>
+              <small class="d-block mb-1">{{ center.address }}</small>
+              <small>{{ center.latitude }}, {{ center.longitude }}</small>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-hint small">No saved centers in database yet.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block body_extra %}
+  <!-- JS after content -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('🗺️ Initializing map...');
+
+      // Quick visibility sanity check
+      const mapEl = document.getElementById('map');
+      const h = mapEl.getBoundingClientRect().height;
+      if (h < 50) {
+        console.warn('❗ Map container height looks too small:', h, 'px. The container may be collapsing.');
+      } else {
+        console.log('✅ Map container height:', h, 'px');
+      }
+
+      // Parse saved centers from Django
+      let SAVED_CENTERS = [];
+      try {
+        SAVED_CENTERS = JSON.parse(String.raw`{{ centers|safe|escapejs }}`) || [];
+      } catch(e) {
+        console.warn('Could not parse SAVED_CENTERS JSON. Falling back to empty array.', e);
+        SAVED_CENTERS = [];
+      }
+      console.log('📍 Loaded', SAVED_CENTERS.length, 'saved centers from database');
+
+      // Initialize map
+      const map = L.map('map', { preferCanvas: true, zoomControl: true });
+
+      // Tile layers with fallback and error logging
+      const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19, attribution: '© OpenStreetMap contributors'
+      });
+      const positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19, attribution: '© OpenStreetMap, © CartoDB'
+      });
+      const dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19, attribution: '© OpenStreetMap, © CartoDB'
+      });
+      const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19, attribution: '© Esri'
+      });
+
+      const tileLayers = { 'CartoDB Positron': positron, 'OpenStreetMap': osm, 'CartoDB Dark': dark, 'Esri WorldStreetMap': esri };
+
+      function attachTileErrorHandler(layer, name) {
+        layer.on('tileerror', (e) => {
+          console.error(`🧱 Tile error on ${name}:`, e?.error || e);
+        });
+      }
+      Object.entries(tileLayers).forEach(([name, layer]) => attachTileErrorHandler(layer, name));
+
+      // Add default tile layer (Positron), fallback to OSM if it fails to load first tile in 3s
+      let defaultAdded = positron.addTo(map);
+      let loadedOnce = false;
+      positron.on('load', () => { loadedOnce = true; console.log('🎨 Positron tiles loaded'); });
+      setTimeout(() => {
+        if (!loadedOnce) {
+          console.warn('⚠️ Positron seems slow/unavailable. Falling back to OSM.');
+          map.removeLayer(positron);
+          osm.addTo(map);
+        }
+      }, 3000);
+
+      L.control.layers(tileLayers, null, { position: 'topright' }).addTo(map);
+
+      // ----- COUNTRY BOUNDS -----
+      const COUNTRY_BOUNDS = {
+        in: L.latLngBounds([6.5546079, 68.1113787], [35.6745457, 97.3955610]),
+        us: L.latLngBounds([24.396308, -124.848974], [49.384358, -66.885444]),
+        gb: L.latLngBounds([49.864, -8.649], [60.860, 1.759]),
+        ca: L.latLngBounds([41.675105, -141.0], [83.113883, -52.648099]),
+        au: L.latLngBounds([-43.7405, 112.9211], [-10.051, 159.1092])
+      };
+      const initialCountry = (document.getElementById('country-code').value || 'in');
+      const initialBounds = COUNTRY_BOUNDS[initialCountry] || COUNTRY_BOUNDS['in'];
+      map.fitBounds(initialBounds, { padding: [30, 30] });
+      map.setMinZoom(map.getZoom()); // prevent zooming out to whole world initially
+
+      // Saved centers cluster
+      const savedGroup = L.markerClusterGroup({
+        disableClusteringAtZoom: 15, spiderfyOnMaxZoom: true, showCoverageOnHover: true, maxClusterRadius: 60
+      });
+      SAVED_CENTERS.forEach(c => {
+        if (c && typeof c.latitude === 'number' && typeof c.longitude === 'number') {
+          savedGroup.addLayer(
+            L.marker([c.latitude, c.longitude], { title: c.name })
+             .bindPopup(`<b>${c.name||'Center'}</b><br><small>${c.address||''}</small>`)
+          );
+        }
+      });
+      if (SAVED_CENTERS.length) {
+        map.addLayer(savedGroup);
+        try { map.fitBounds(savedGroup.getBounds().pad(0.4)); } catch(e) {}
+      }
+
+      // Live results cluster
+      let liveCluster = L.markerClusterGroup({
+        disableClusteringAtZoom: 15, spiderfyOnMaxZoom: true, showCoverageOnHover: true, maxClusterRadius: 60
+      });
+
+      let userCircle = null;
+      let userMarker = null;
+
+      const statusBar = document.getElementById('status-bar');
+      const statusText = document.getElementById('status-text');
+      const resultsEl = document.getElementById('live-results');
+      const liveCountEl = document.getElementById('live-count');
+
+      function setStatus(msg, loading = false) {
+        statusText.textContent = msg;
+        statusBar.classList.toggle('loading', !!loading);
+        console.log('📊 Status:', msg);
+      }
+
+      function clearLive(){
+        if (liveCluster) { try { map.removeLayer(liveCluster); } catch(e){} }
+        liveCluster = L.markerClusterGroup({
+          disableClusteringAtZoom: 15, spiderfyOnMaxZoom:true, showCoverageOnHover:false
+        });
+        resultsEl.innerHTML = '<div class="empty-hint small">Cleared. Run a new search.</div>';
+        liveCountEl.textContent='0';
+      }
+
+      function renderLive(list){
+        if(!Array.isArray(list) || !list.length){
+          resultsEl.innerHTML = '<div class="empty-hint small">No results. Adjust radius or try another area.</div>';
+          liveCountEl.textContent='0';
+          return;
+        }
+        const frag = [];
+        list.forEach(item => {
+          const ratingText = (item.rating != null) ? `${item.rating} ★ (${item.userRatingCount || 0})` : 'No rating';
+          const types = (item.types||[]).slice(0,4);
+          frag.push(`
+            <div class='result-item'>
+              <div class='d-flex justify-content-between mb-1 small'><span class='fw-semibold'>${item.name}</span>${item.rating!=null?`<span class='rating-pill'>${item.rating}★</span>`:''}</div>
+              <div class='small text-muted mb-1'>${item.address || 'Address unavailable'}</div>
+              <div class='small mb-1'>${ratingText}</div>
+              ${types.length?`<div>${types.map(t=>`<span class='type-badge'>${t.replace(/_/g,' ')}</span>`).join('')}</div>`:''}
+              ${item.phone?`<div class='small mt-1'>📞 ${item.phone}</div>`:''}
+              ${item.website?`<div class='small'><a href='${item.website}' target='_blank' rel='noopener'>Website</a></div>`:''}
+            </div>`);
+          if (typeof item.latitude === 'number' && typeof item.longitude === 'number') {
+            const popupLine2 = (item.rating!=null)?`<div class='small text-muted mt-1'>${item.rating}★ (${item.userRatingCount||0})</div>`:'';
+            liveCluster.addLayer(L.marker([item.latitude, item.longitude], { title:item.name })
+              .bindPopup(`<b>${item.name}</b><br>${item.address||''}${popupLine2}`));
+          }
+        });
+        resultsEl.innerHTML = `<div class='vstack gap-2'>${frag.join('')}</div>`;
+        liveCountEl.textContent = String(list.length);
+        map.addLayer(liveCluster);
+        try { map.fitBounds(liveCluster.getBounds().pad(0.25)); } catch(e){}
+      }
+
+      function showUser(lat,lng,radiusKm){
+        try { if(userMarker) map.removeLayer(userMarker); if(userCircle) map.removeLayer(userCircle); } catch(e){}
+        userMarker = L.marker([lat,lng], { title:'You' }).bindPopup('<b>Your Location</b>');
+        userCircle = L.circle([lat,lng], { radius:(radiusKm||10)*1000, color:'#2d6a4f', fillColor:'#52b788', fillOpacity:.08 });
+        userMarker.addTo(map); userCircle.addTo(map);
+      }
+
+      async function fetchNearby({lat=null,lng=null,q=null,country=null,radiusKm=10}){
+        setStatus('Searching nearby centers...', true); clearLive();
+        const url = new URL(window.location.origin + '/centers/nearby/');
+        if(lat!=null && lng!=null){ url.searchParams.set('lat',lat); url.searchParams.set('lng',lng); }
+        if(q) url.searchParams.set('q',q);
+        if(country) url.searchParams.set('country',country);
+        url.searchParams.set('radius_km',radiusKm);
+        const limitBounds = document.getElementById('limit-to-bounds').checked;
+        if(limitBounds){
+          try{
+            const b = map.getBounds();
+            url.searchParams.set('sw_lat', b.getSouthWest().lat);
+            url.searchParams.set('sw_lng', b.getSouthWest().lng);
+            url.searchParams.set('ne_lat', b.getNorthEast().lat);
+            url.searchParams.set('ne_lng', b.getNorthEast().lng);
+          }catch(e){}
+        }
+        try {
+          const r = await fetch(url);
+          const j = await r.json();
+          if(!r.ok) throw new Error(j.error || 'Request failed');
+          const data = j.centers || [];
+          if(!data.length){ setStatus('No live results in area. Try larger radius.', false); renderLive([]); return; }
+          renderLive(data); setStatus(`Loaded ${data.length} centers.`, false);
+        } catch(err){
+          console.error(err);
+          setStatus('Error: '+err.message, false);
+          resultsEl.innerHTML = `<div class='empty-hint small text-danger'>${err.message}</div>`;
+        }
+      }
+
+      // Event listeners
+      document.getElementById('btn-use-location').addEventListener('click', () => {
+        if (!navigator.geolocation) { setStatus('❌ Geolocation not supported', false); return; }
+        const radiusKm = parseInt(document.getElementById('radius-km').value, 10) || 10;
+        const country = document.getElementById('country-code').value || null;
+        setStatus('📍 Getting your location...', true);
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            showUser(pos.coords.latitude, pos.coords.longitude, radiusKm);
+            fetchNearby({ lat: pos.coords.latitude, lng: pos.coords.longitude, radiusKm, country });
+          },
+          () => { setStatus('❌ Location permission denied', false); alert('Please enable location services to use this feature.'); }
+        );
+      });
+
+      document.getElementById('btn-search-place').addEventListener('click', () => {
+        const q = document.getElementById('place-input').value.trim();
+        if (!q) { setStatus('⚠️ Enter a place name', false); return; }
+        const radiusKm = parseInt(document.getElementById('radius-km').value, 10) || 10;
+        const country = document.getElementById('country-code').value || null;
+        fetchNearby({ q, radiusKm, country });
+      });
+
+      document.getElementById('btn-clear-live').addEventListener('click', () => {
+        clearLive(); setStatus('🧹 Cleared. Ready for new search.', false);
+      });
+
+      // Robust resizing & visibility handling
+      function invalidate() {
+        try { map.invalidateSize(); } catch (e) {}
+      }
+      // 1) initial delayed invalidations (handles fonts/layout shifts)
+      setTimeout(invalidate, 200);
+      setTimeout(invalidate, 600);
+      // 2) on resize
+      window.addEventListener('resize', () => setTimeout(invalidate, 150));
+      // 3) if container was hidden (e.g., tabs / AOS), watch visibility
+      const visObs = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) setTimeout(invalidate, 100); });
+      });
+      visObs.observe(document.getElementById('map-wrapper'));
+
+      // Update map when country changes
+      document.getElementById('country-code').addEventListener('change', (e) => {
+        const c = e.target.value || 'in';
+        const b = COUNTRY_BOUNDS[c] || COUNTRY_BOUNDS['in'];
+        map.fitBounds(b, { padding: [30, 30] });
+        setStatus('Region changed. Ready to search.', false);
+      });
+
+      console.log('✅ Map initialization complete (India view).');
+    });
+  </script>
+{% endblock %}

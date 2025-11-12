@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}AI E‑Waste Quiz • E‑Waste Finder{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-10 mx-auto">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="mb-0">AI E‑Waste Quiz</h4>
+      <a class="btn btn-outline-success" href="?regen=1">Regenerate</a>
+    </div>
+    <form method="post" class="card">
+      {% csrf_token %}
+      <div class="card-body">
+        {% if questions %}
+          {% for q in questions %}
+            <div class="mb-3">
+              <div class="fw-semibold">Q{{ forloop.counter }}. {{ q.q }}</div>
+              <div class="mt-2">
+                {% for opt in q.options %}
+                  <div class="form-check">
+                    <input class="form-check-input" type="radio" name="q{{ forloop.parentloop.counter0 }}" id="q{{ forloop.parentloop.counter0 }}_{{ opt.label }}" value="{{ opt.label }}" {% if q.user_choice == opt.label %}checked{% endif %}>
+                    <label class="form-check-label" for="q{{ forloop.parentloop.counter0 }}_{{ opt.label }}">
+                      {{ opt.label }}. {{ opt.text }}
+                    </label>
+                    {% if score is not None %}
+                      {% if opt.label == q.answer %}
+                        <span class="badge text-bg-success ms-2">Correct</span>
+                      {% elif q.user_choice == opt.label %}
+                        <span class="badge text-bg-danger ms-2">Your choice</span>
+                      {% endif %}
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+          <input type="hidden" name="questions_json" value='{{ questions|safe }}'>
+          <button class="btn btn-success" type="submit">Submit Answers</button>
+          {% if score is not None %}
+            <span class="ms-3 align-middle">Score: <strong>{{ score }}/{{ questions|length }}</strong></span>
+          {% endif %}
+        {% else %}
+          <p>Could not generate quiz at the moment. Please try regenerating.</p>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+

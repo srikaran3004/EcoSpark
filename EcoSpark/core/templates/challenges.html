@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Green Challenges • E‑Waste Finder{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-10 mx-auto">
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">Green Challenges & Badges</h5>
+          {% if badge %}
+            <div class="text-center">
+              <div class="display-4">{{ badge }}</div>
+              <div class="fw-semibold">{{ badge_name }}</div>
+            </div>
+          {% endif %}
+        </div>
+        <div class="mb-2">
+          <div class="d-flex justify-content-between small mb-1">
+            <span>Progress</span>
+            <span>{{ progress }}%</span>
+          </div>
+          <div class="progress" style="height: 24px;">
+            <div class="progress-bar bg-success" role="progressbar" style="width: {{ progress }}%">{{ progress }}%</div>
+          </div>
+        </div>
+        <div class="text-muted small">Total CO₂ saved: <strong>{{ total_co2 }} kg</strong></div>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      {% for challenge in challenges %}
+        <div class="col-md-6" data-aos="fade-up" data-aos-delay="{% widthratio forloop.counter0 1 100 %}">
+          <div class="card h-100 {% if challenge.id in completed %}border-success{% endif %}">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="card-title mb-0">{{ challenge.title }}</h6>
+                {% if challenge.id in completed %}
+                  <span class="badge text-bg-success">Done</span>
+                {% endif %}
+              </div>
+              <p class="text-muted small mb-2">Saves ~{{ challenge.co2_saved }} kg CO₂</p>
+              {% if challenge.id not in completed %}
+                <form method="post" class="d-inline">
+                  {% csrf_token %}
+                  <input type="hidden" name="challenge_id" value="{{ challenge.id }}">
+                  <button class="btn btn-success btn-sm" type="submit">Mark as Done</button>
+                </form>
+              {% else %}
+                <button class="btn btn-outline-success btn-sm" disabled>Completed</button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if badge %}
+      <div class="card mt-3 border-success">
+        <div class="card-body text-center">
+          <h6 class="card-title">Share Your Achievement!</h6>
+          <p class="mb-2">You've earned the <strong>{{ badge_name }}</strong> badge! 🌟</p>
+          <div class="d-flex gap-2 justify-content-center">
+            <a href="https://twitter.com/intent/tweet?text=I%20just%20earned%20the%20{{ badge_name|urlencode }}%20badge%20on%20E-Waste%20Finder!%20🌱" target="_blank" class="btn btn-outline-primary btn-sm">Share on Twitter</a>
+            <a href="https://wa.me/?text=I%20just%20earned%20the%20{{ badge_name|urlencode }}%20badge%20on%20E-Waste%20Finder!%20🌱" target="_blank" class="btn btn-outline-success btn-sm">Share on WhatsApp</a>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
